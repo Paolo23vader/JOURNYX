@@ -1,0 +1,102 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import { ViewType, Game } from './types';
+import HomeView from './views/HomeView';
+import SearchView from './views/SearchView';
+import ProfileView from './views/ProfileView';
+import GameDetailView from './views/GameDetailView';
+import NotificationsView from './views/NotificationsView';
+import BottomNav from './components/BottomNav';
+import { MOCK_GAMES, WAITED_2026_GAMES } from './mockData';
+
+const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<ViewType>('home');
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+  const [history, setHistory] = useState<ViewType[]>(['home']);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Reset scroll position to top whenever the view changes
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo(0, 0);
+    }
+  }, [currentView, selectedGameId]);
+
+  const navigateTo = (view: ViewType, gameId: string | null = null) => {
+    if (view === 'game-detail' && gameId) {
+      setSelectedGameId(gameId);
+    }
+    setCurrentView(view);
+    setHistory(prev => [...prev, view]);
+  };
+
+  const handleBack = () => {
+    if (history.length > 1) {
+      const newHistory = [...history];
+      newHistory.pop();
+      const previousView = newHistory[newHistory.length - 1];
+      setCurrentView(previousView);
+      setHistory(newHistory);
+      if (previousView !== 'game-detail') {
+        setSelectedGameId(null);
+      }
+    } else {
+      setCurrentView('home');
+    }
+  };
+
+  const toggleWishlist = (gameId: string) => {
+    setWishlist(prev => 
+      prev.includes(gameId) 
+        ? prev.filter(id => id !== gameId) 
+        : [...prev, gameId]
+    );
+  };
+
+  const renderView = () => {
+    switch (currentView) {
+      case 'home':
+        return <HomeView onSelectGame={(id) => navigateTo('game-detail', id)} onNavigate={navigateTo} />;
+      case 'search':
+        return <SearchView onSelectGame={(id) => navigateTo('game-detail', id)} />;
+      case 'profile':
+        return (
+          <ProfileView 
+            onSelectGame={(id) => navigateTo('game-detail', id)} 
+            wishlist={wishlist}
+          />
+        );
+      case 'notifications':
+        return <NotificationsView />;
+      case 'game-detail':
+        const allPossibleGames = [...MOCK_GAMES, ...WAITED_2026_GAMES];
+        const foundGame = allPossibleGames.find(g => g.id === selectedGameId);
+
+        return foundGame ? (
+          <GameDetailView 
+            game={foundGame} 
+            onBack={handleBack} 
+            isWishlisted={wishlist.includes(foundGame.id)}
+            onToggleWishlist={() => toggleWishlist(foundGame.id)}
+          />
+        ) : <HomeView onSelectGame={(id) => navigateTo('game-detail', id)} onNavigate={navigateTo} />;
+      default:
+        return <HomeView onSelectGame={(id) => navigateTo('game-detail', id)} onNavigate={navigateTo} />;
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen max-w-md mx-auto relative bg-[#0a0612] shadow-2xl overflow-hidden border-x border-slate-900 rounded-none">
+      <main ref={mainRef} className="flex-1 pb-24 overflow-y-auto no-scrollbar scroll-smooth">
+        {renderView()}
+      </main>
+
+      {currentView !== 'game-detail' && (
+        <BottomNav currentView={currentView} onNavigate={navigateTo} />
+      )}
+    </div>
+  );
+};
+
+export default App;

@@ -1,0 +1,85 @@
+
+import React from 'react';
+import { Heart, UserPlus, MessageSquare, Star, ArrowRight, Zap } from 'lucide-react';
+
+const MOCK_NOTIFICATIONS = [
+  { id: '1', type: 'like', user: 'Marcus Thorne', content: 'liked your review of Elden Ring', time: '2m ago', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100' },
+  { id: '2', type: 'follow', user: 'Elena Rossi', content: 'started following your journey', time: '1h ago', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=100' },
+  { id: '3', type: 'comment', user: 'Sarah Chen', content: 'replied: "I totally agree about the boss music!"', time: '3h ago', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100' },
+  { id: '4', type: 'system', user: 'Journyx', content: 'Your review of "Hades II" is trending!', time: '1d ago', avatar: null },
+];
+
+const MOCK_MESSAGES = [
+  { id: 'm1', user: 'Marcus Thorne', lastMsg: 'Hey, are you playing the DLC tonight?', time: '2h ago', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100', unread: true },
+  { id: 'm2', user: 'Sarah Chen', lastMsg: 'That review was amazing! Keep it up.', time: '5h ago', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100', unread: false },
+];
+
+const NotificationsView: React.FC = () => {
+  return (
+    <div className="p-6 pb-24 bg-[#0a0612] min-h-screen">
+      <header className="mb-10">
+        <h2 className="text-3xl font-black text-white uppercase tracking-tight">Activity</h2>
+        <p className="text-xs text-slate-500 font-bold uppercase tracking-wide">Direct & Updates</p>
+      </header>
+
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">Direct Messages</h3>
+          <span className="text-[10px] font-black text-purple-400 bg-purple-900/30 px-2 py-0.5">1 NEW</span>
+        </div>
+        <div className="space-y-4">
+          {MOCK_MESSAGES.map(msg => (
+            <div key={msg.id} className="flex items-center gap-4 bg-slate-900/40 border border-slate-800 rounded-none cursor-pointer hover:bg-slate-900/60 transition-colors">
+              <img src={msg.avatar} alt={msg.user} className="w-12 h-12 rounded-none object-cover border border-slate-700" />
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-center mb-1">
+                  <h4 className={`text-sm font-black ${msg.unread ? 'text-white' : 'text-slate-400'}`}>{msg.user}</h4>
+                  <span className="text-[10px] text-slate-600 font-bold">{msg.time}</span>
+                </div>
+                <p className={`text-xs truncate ${msg.unread ? 'text-slate-200 font-bold' : 'text-slate-500 font-medium'}`}>{msg.lastMsg}</p>
+              </div>
+              {msg.unread && <div className="w-2 h-2 bg-purple-500 rounded-none" />}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Recent Updates</h3>
+        <div className="space-y-4">
+          {MOCK_NOTIFICATIONS.map(notif => (
+            <div key={notif.id} className="flex gap-4 items-start p-4 bg-slate-900/40 border border-slate-800 rounded-none">
+              <div className="w-10 h-10 flex-shrink-0 relative">
+                {notif.avatar ? (
+                  <img src={notif.avatar} className="w-full h-full rounded-none object-cover border border-slate-700" />
+                ) : (
+                  <div className="w-full h-full bg-purple-900 flex items-center justify-center">
+                    <Star size={18} className="text-white" />
+                  </div>
+                )}
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0a0612] flex items-center justify-center border border-slate-800">
+                  {notif.type === 'like' && <Heart size={10} className="text-pink-500 fill-pink-500" />}
+                  {notif.type === 'follow' && <UserPlus size={10} className="text-purple-400" />}
+                  {notif.type === 'comment' && <MessageSquare size={10} className="text-blue-400" />}
+                  {notif.type === 'system' && <Zap size={10} className="text-yellow-500 fill-yellow-500" />}
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-xs text-slate-400 leading-snug">
+                  <span className="font-black text-white">{notif.user || 'Journyx'}</span> {notif.content}
+                </p>
+                <p className="text-[10px] text-slate-600 font-bold uppercase mt-1 tracking-wider">{notif.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <button className="mt-8 flex items-center justify-center gap-2 w-full py-4 border border-slate-800 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:text-purple-400 transition-colors">
+        Clear All History <ArrowRight size={14} />
+      </button>
+    </div>
+  );
+};
+
+export default NotificationsView;
